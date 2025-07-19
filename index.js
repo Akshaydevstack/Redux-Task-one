@@ -1,28 +1,25 @@
 import { createStore } from "https://cdn.skypack.dev/redux";
+import { Decrement, Increment } from "./actionCreater.js";
 
-const increment = document.getElementById("Increment");
-const value = document.getElementById("value");
-const decrement = document.getElementById("Decrement");
+const inisialstate= {value:0}
 
-const inistalstae={value:0}
-
-function appreducer(prevState=inistalstae,action) {
-   switch(action.type){
-    case "increment": return {...prevState,value:prevState.value+1}
-    case "decrement": return {...prevState,value:prevState.value-1}
-    default: return prevState
-   }
+function reducer(state=inisialstate,action){
+switch(action.type){
+    case "INCREMENT": return{...state,value:state.value+action.payload}
+    case "DECREMENT": return{...state,value:state.value-action.payload}
+}
 }
 
-const store=createStore(appreducer)
-store.subscribe(() => {
-  const currentState = store.getState();
-  value.innerText = currentState.value;
-});
+const store= createStore(reducer)
 
-increment.onclick=()=>{store.dispatch({type:"increment"})}
-value.innerText=inistalstae.value
-decrement.onclick=()=>{store.dispatch({type:"decrement"})}
+store.subscribe(()=>{
+    const currentState=store.getState()
+    document.getElementById("value").innerText=currentState.value
+})
 
-
-
+document.getElementById("Increment").onclick=()=>{
+    store.dispatch(Increment(1))
+}
+document.getElementById("Decrement").onclick=()=>{
+    store.dispatch(Decrement(1))
+}
