@@ -1,25 +1,39 @@
-import { createStore } from "https://cdn.skypack.dev/redux";
-import { Decrement, Increment } from "./actionCreater.js";
+import { createStore, applyMiddleware } from "https://cdn.skypack.dev/redux";
 
-const inisialstate= {value:0}
-
-function reducer(state=inisialstate,action){
-switch(action.type){
-    case "INCREMENT": return{...state,value:state.value+action.payload}
-    case "DECREMENT": return{...state,value:state.value-action.payload}
+function reducer(state = { value: 0 }, action) {
+  switch (action.type) {
+    case "INCREMENT":
+      return { ...state, value: state.value + action.payload };
+    case "DECREMENT":
+      return { ...state, value: state.value - action.payload };
+    default:
+      return state;
+  }
 }
-}
 
-const store= createStore(reducer)
+// ✅ Logger Middleware
+const loggerMiddleware = (store) => (next) => (action) => {
+  console.log("👉 Dispatching:", action);
+  const result = next(action); // Pass to reducer
+  console.log("✅ Next State:", store.getState());
+  return result;
+};
 
-store.subscribe(()=>{
-    const currentState=store.getState()
-    document.getElementById("value").innerText=currentState.value
-})
+const store = createStore(
+  reducer,
+  // window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+  applyMiddleware(loggerMiddleware)
+);
 
-document.getElementById("Increment").onclick=()=>{
-    store.dispatch(Increment(1))
-}
-document.getElementById("Decrement").onclick=()=>{
-    store.dispatch(Decrement(1))
-}
+document.getElementById("Increment").onclick = () => {
+  store.dispatch({ type: "INCREMENT", payload: 1 });
+};
+
+document.getElementById("Decrement").onclick = () => {
+  store.dispatch({ type: "DECREMENT", payload: 1 });
+};
+
+store.subscribe(() => {
+  const currentValue = store.getState();
+  document.getElementById("value").innerText = currentValue.value;
+});
